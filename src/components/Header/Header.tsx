@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Todo } from '../../types/Todo';
 import { USER_ID } from '../../api/todos';
+import { ErrorNotificationMessage } from '../../types/ErrorNotificationMessage';
 
 interface HeaderProps {
   inputForAddTodo: string;
   onChangeInput: (inputForAddTodo: string) => void;
   addTodo: ({ title, completed, userId }: Omit<Todo, 'id'>) => Promise<void>;
-  onErrorMessage: (errorMessage: string) => void;
+  onErrorMessage: (errorMessage: ErrorNotificationMessage) => void;
   todosLength: number;
 }
 
@@ -30,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
     setIsDisabledInput(true);
 
     if (inputForAddTodo.trim().length <= 0) {
-      onErrorMessage('Title should not be empty');
+      onErrorMessage(ErrorNotificationMessage.TitleShouldNotBeEmpty);
       setIsDisabledInput(false);
 
       return;
@@ -43,7 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
         userId: USER_ID,
       });
     } catch (error) {
-      onErrorMessage('Unable to add a todo');
+      onErrorMessage(ErrorNotificationMessage.UnableToAddTodos);
     } finally {
       setIsDisabledInput(false);
     }

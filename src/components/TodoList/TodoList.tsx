@@ -4,10 +4,10 @@ import { Todo } from '../Todo/Todo';
 
 interface TodoListProps {
   visibleTodos: TodoInterface[];
-  // deleteTodo: (userId: number) => void;
-  deletedTodoId: number;
+  deletedTodoId: TodoInterface['id'];
   changeDeletedTodoId: (deletedTodo: number) => void;
   tempTodo: TodoInterface | null;
+  onDeleteTodo: (todoId: TodoInterface['id']) => void;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
@@ -15,6 +15,7 @@ export const TodoList: React.FC<TodoListProps> = ({
   deletedTodoId,
   changeDeletedTodoId,
   tempTodo,
+  onDeleteTodo,
 }) => {
   return (
     <section className="todoapp__main" data-cy="TodoList">
@@ -25,6 +26,7 @@ export const TodoList: React.FC<TodoListProps> = ({
             todo={todo}
             deletedTodoId={deletedTodoId}
             changeDeletedTodoId={changeDeletedTodoId}
+            onDeleteTodo={onDeleteTodo}
           />
         );
       })}
@@ -34,6 +36,7 @@ export const TodoList: React.FC<TodoListProps> = ({
           todo={tempTodo}
           deletedTodoId={deletedTodoId}
           changeDeletedTodoId={changeDeletedTodoId}
+          onDeleteTodo={onDeleteTodo}
         />
       )}
     </section>

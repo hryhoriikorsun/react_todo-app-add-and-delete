@@ -7,19 +7,22 @@ interface FooterProps {
   todos: Todo[];
   selectStatusTodos: StatusTodos;
   onChangeStatusTodos: (selectStatusTodos: StatusTodos) => void;
-  onClearCompleted: () => void;
+  onDeleteCompleted: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   todos,
   selectStatusTodos,
   onChangeStatusTodos,
-  onClearCompleted,
+  onDeleteCompleted,
 }) => {
+  const itemsLeft = todos.filter(todo => !todo.completed).length;
+  const isDisabled = todos.every(todo => !todo.completed);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
-        {todos.filter(todo => !todo.completed).length} items left
+        {itemsLeft} items left
       </span>
 
       {/* Active link should have the 'selected' class */}
@@ -63,8 +66,8 @@ export const Footer: React.FC<FooterProps> = ({
         type="button"
         className="todoapp__clear-completed"
         data-cy="ClearCompletedButton"
-        onClick={onClearCompleted}
-        disabled={todos.every(todo => !todo.completed)}
+        onClick={onDeleteCompleted}
+        disabled={isDisabled}
       >
         Clear completed
       </button>

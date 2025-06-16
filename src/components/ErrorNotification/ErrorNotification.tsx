@@ -1,9 +1,10 @@
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
+import { ErrorNotificationMessage } from '../../types/ErrorNotificationMessage';
 
 interface ErrorNotificationProps {
   errorMessage: string;
-  onErrorMessage: (errorMessage: string) => void;
+  onErrorMessage: (errorMessage: ErrorNotificationMessage) => void;
 }
 
 export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
@@ -15,7 +16,10 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
       return;
     }
 
-    const timer = setTimeout(() => onErrorMessage(''), 3000);
+    const timer = setTimeout(
+      () => onErrorMessage(ErrorNotificationMessage.Cleared),
+      3000,
+    );
 
     return () => clearTimeout(timer);
   }, [errorMessage, onErrorMessage]);
@@ -32,19 +36,9 @@ export const ErrorNotification: React.FC<ErrorNotificationProps> = ({
         data-cy="HideErrorButton"
         type="button"
         className="delete"
-        onClick={() => onErrorMessage('')}
+        onClick={() => onErrorMessage(ErrorNotificationMessage.Cleared)}
       />
-      {/* show only one message at a time */}
       {errorMessage}
-      {/* Unable to load todos
-        <br />
-        Title should not be empty
-        <br />
-        Unable to add a todo
-        <br />
-        Unable to delete a todo
-        <br />
-        Unable to update a todo */}
     </div>
   );
 };

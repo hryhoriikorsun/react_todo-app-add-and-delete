@@ -7,14 +7,16 @@ import classNames from 'classnames';
 
 interface TodoProps {
   todo: TodoInterface;
-  deletedTodoId: number;
+  deletedTodoId: TodoInterface['id'];
   changeDeletedTodoId: (deletedTodo: number) => void;
+  onDeleteTodo: (todoId: TodoInterface['id']) => void;
 }
 
 export const Todo: React.FC<TodoProps> = ({
   todo,
   deletedTodoId,
   changeDeletedTodoId,
+  onDeleteTodo,
 }) => {
   return (
     <div
@@ -40,7 +42,7 @@ export const Todo: React.FC<TodoProps> = ({
         className="todo__remove"
         data-cy="TodoDelete"
         onClick={() => {
-          return changeDeletedTodoId(todo.id);
+          return changeDeletedTodoId(todo.id), onDeleteTodo(todo.id);
         }}
       >
         ×

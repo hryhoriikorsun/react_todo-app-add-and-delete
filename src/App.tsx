@@ -9,45 +9,42 @@ import { ErrorNotification } from './components/ErrorNotification';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { StatusTodos } from './types/StatusTodos';
+import { ErrorNotificationMessage } from './types/ErrorNotificationMessage';
 
 const prepereTodos = (todos: Todo[], statusTodos: StatusTodos) => {
-  let preparedTodo = [...todos];
-
   switch (statusTodos) {
     case StatusTodos.Completed:
-      preparedTodo = preparedTodo.filter(todo => todo.completed);
-      break;
+      return todos.filter(todo => todo.completed);
     case StatusTodos.Active:
-      preparedTodo = preparedTodo.filter(todo => !todo.completed);
-      break;
+      return todos.filter(todo => !todo.completed);
+    default:
+      return todos;
   }
-
-  return preparedTodo;
 };
 
 export const App: React.FC = () => {
   const [isLoadingTodos, setIsLoadingTodos] = useState(true);
 
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [deletedTodoId, setDeletedTodoId] = useState(0);
-
+  const [deletedTodoId, setDeletedTodoId] = useState<Todo['id']>(0);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [errorMessage, setErrorMessage] = useState(
+    ErrorNotificationMessage.Cleared,
+  );
 
   const [inputForAddTodo, setInputForAddTodo] = useState('');
-
   const [selectStatusTodos, setSelectStatusTodos] = useState(StatusTodos.All);
 
   const visibleTodos = prepereTodos(todos, selectStatusTodos);
 
   useEffect(() => {
     setIsLoadingTodos(true);
-    setErrorMessage('');
+    setErrorMessage(ErrorNotificationMessage.Cleared);
 
     getTodos()
       .then(setTodos)
       .catch(error => {
-        setErrorMessage('Unable to load todos');
+        setErrorMessage(ErrorNotificationMessage.UnableToLoadTodos);
         throw error;
       })
       .finally(() => setIsLoadingTodos(false));
@@ -68,28 +65,28 @@ export const App: React.FC = () => {
       setTodos(currentTodos => [...currentTodos, newTodo]);
       setInputForAddTodo('');
     } catch (error) {
-      setErrorMessage('Unable to add a todo');
+      setErrorMessage(ErrorNotificationMessage.UnableToAddTodos);
     } finally {
       setTempTodo(null);
     }
   };
 
-  useEffect(() => {
-    deleteTodo(deletedTodoId)
-      .then(() =>
-        setTodos(currentTodos =>
-          currentTodos.filter(todo => todo.id !== deletedTodoId),
-        ),
-      )
-      .catch(error => {
-        if (error instanceof Error) {
-          setErrorMessage('Unable to delete a todo');
-          throw error;
-        }
-      });
-  }, [deletedTodoId]);
+  const handdleDeleteTodo = async (todoId: Todo['id']) => {
+    try {
+      await deleteTodo(todoId);
 
-  const handleClearCompleted = () => {
+      setTodos(currentTodos => currentTodos.filter(todo => todo.id !== todoId));
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(ErrorNotificationMessage.UnableToDeleteTodos);
+        throw error;
+      }
+    } finally {
+      setTempTodo(null);
+    }
+  };
+
+  const handleDeleteCompleted = () => {
     const completedTodos = todos.filter(todo => todo.completed);
 
     completedTodos.map(todo =>
@@ -100,7 +97,7 @@ export const App: React.FC = () => {
           );
         })
         .catch(() => {
-          setErrorMessage('Unable to delete a todo');
+          setErrorMessage(ErrorNotificationMessage.UnableToDeleteTodos);
         }),
     );
   };
@@ -132,6 +129,7 @@ export const App: React.FC = () => {
             deletedTodoId={deletedTodoId}
             changeDeletedTodoId={setDeletedTodoId}
             tempTodo={tempTodo}
+            onDeleteTodo={handdleDeleteTodo}
           />
         )}
 
@@ -141,7 +139,7 @@ export const App: React.FC = () => {
             todos={todos}
             selectStatusTodos={selectStatusTodos}
             onChangeStatusTodos={setSelectStatusTodos}
-            onClearCompleted={handleClearCompleted}
+            onDeleteCompleted={handleDeleteCompleted}
           />
         )}
       </div>
